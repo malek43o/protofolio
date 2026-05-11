@@ -5,9 +5,9 @@
   <br/>
   <strong>Frontend Developer & UI Engineer Portfolio</strong>
   <br/>
-  <a href="https://sanoya.netlify.app"><strong>Live Demo »</strong></a>
+  <a href="https://malek43o.github.io/protofolio/"><strong>Live Demo »</strong></a>
   ·
-  <a href="https://github.com/your-username/portfolio"><strong>GitHub Repo</strong></a>
+  <a href="https://github.com/malek43o/protofolio"><strong>GitHub Repo</strong></a>
 </div>
 
 ---
