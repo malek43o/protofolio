@@ -35,9 +35,3 @@ This is my personal portfolio website showcasing front-end development expertise
 - [Font Awesome](https://fontawesome.com/) – Icons
 - [Google Fonts](https://fonts.google.com/) – Playfair Display, Inter, JetBrains Mono
 
-## 📦 Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/portfolio.git
-   cd portfolio
