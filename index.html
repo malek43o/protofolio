@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black text-white selection:bg-[#FF5701] overflow-x-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malek DevStudio | Portfolio 2026</title>
+
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Flip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/InertiaPlugin.min.js"></script>
+    <script src="https://unpkg.com/split-type"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF5701',
+                        dark: '#050505',
+                        darker: '#0a0a0a',
+                        surface: '#111111',
+                        surface2: '#1a1a1a'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            -ms-overflow-style: none; 
+            scrollbar-width: none;
+            background: #000;
+            overflow-x: hidden;
+        }
+        body::-webkit-scrollbar { display: none; }
+
+        .font-heading { font-family: 'Playfair Display', serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* WebGL Canvas Background */
+        #webgl-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none;
+        }
+
+        /* Magnetic Button Effect */
+        .magnetic-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .magnetic-btn::before {
+            content: '';
+            position: absolute;
+            inset: -20px;
+            border-radius: 50%;
+            pointer-events: auto;
+        }
+
+        /* Custom Cursor */
+        .cursor-dot {
+            position: fixed; pointer-events: none; z-index: 9999;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #FF5701; mix-blend-mode: difference;
+            transition: transform 0.15s ease;
+        }
+        .cursor-ring {
+            position: fixed; pointer-events: none; z-index: 9998;
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 1px solid rgba(255,87,1,0.4);
+            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1), width 0.3s, height 0.3s;
+        }
+        .cursor-ring.hover {
+            width: 60px; height: 60px;
+            border-color: rgba(255,87,1,0.8);
+            background: rgba(255,87,1,0.05);
+        }
+
+        /* Text Reveal */
+        .mask-text { 
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%); 
+            overflow: hidden;
+        }
+
+        /* Glitch Effect */
+        .glitch-text {
+            position: relative;
+        }
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+        }
+        .glitch-text.active::before {
+            animation: glitch-1 0.4s ease;
+            color: #FF5701;
+            z-index: -1;
+            opacity: 1;
+        }
+        .glitch-text.active::after {
+            animation: glitch-2 0.4s ease;
+            color: #00ffff;
+            z-index: -2;
+            opacity: 1;
+        }
+        @keyframes glitch-1 {
+            0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+            20% { clip-path: inset(20% 0 60% 0); transform: translate(-4px, 2px); }
+            40% { clip-path: inset(40% 0 40% 0); transform: translate(4px, -2px); }
+            60% { clip-path: inset(60% 0 20% 0); transform: translate(-2px, 4px); }
+            80% { clip-path: inset(80% 0 0 0); transform: translate(2px, -4px); }
+        }
+        @keyframes glitch-2 {
+            0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+            20% { clip-path: inset(60% 0 20% 0); transform: translate(4px, -2px); }
+            40% { clip-path: inset(40% 0 40% 0); transform: translate(-4px, 2px); }
+            60% { clip-path: inset(20% 0 60% 0); transform: translate(2px, -4px); }
+            80% { clip-path: inset(0% 0 80% 0); transform: translate(-2px, 4px); }
+        }
+
+        /* Marquee */
+        .marquee-track {
+            display: flex;
+            animation: marquee 30s linear infinite;
+        }
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Horizontal Scroll Gallery */
+        .horizontal-scroll {
+            display: flex;
+            gap: 2rem;
+            will-change: transform;
+        }
+
+        /* Card 3D Tilt */
+        .tilt-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        .tilt-card-inner {
+            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .floating { animation: float 6s ease-in-out infinite; }
+
+        /* Pulse Glow */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,87,1,0.3); }
+            50% { box-shadow: 0 0 40px rgba(255,87,1,0.6); }
+        }
+        .pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+
+        /* Noise Texture Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9990; opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Skill Bar Animation */
+        .skill-bar {
+            position: relative;
+            overflow: hidden;
+        }
+        .skill-bar::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,87,1,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Stagger Grid Items */
+        .grid-item {
+            opacity: 0;
+            transform: translateY(60px);
+        }
+
+        /* Text Scramble */
+        .scramble-text {
+            display: inline-block;
+        }
+
+        /* Smooth Section Transition */
+        .section-reveal {
+            opacity: 0;
+            transform: translateY(80px);
+        }
+
+        /* Parallax Layers */
+        .parallax-slow { will-change: transform; }
+        .parallax-fast { will-change: transform; }
+
+        /* Navigation Glassmorphism */
+        .nav-glass {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(5,5,5,0.7);
+            border-bottom: 1px solid rgba(255,87,1,0.1);
+        }
+
+        /* Project Card Hover */
+        .project-card {
+            position: relative;
+            overflow: hidden;
+        }
+    .project-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(255,87,1,0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 1;
+    pointer-events: none; /* ← أضف هذا السطر */
+}
+        .project-card:hover::before { opacity: 1; }
+
+        /* Typing Effect */
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+            color: #FF5701;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        /* Counter Animation */
+        .counter-value {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Image Reveal */
+        .img-reveal {
+            position: relative;
+            overflow: hidden;
+        }
+        .img-reveal::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: #FF5701;
+            transform: scaleX(1);
+            transform-origin: right;
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .img-reveal.revealed::after {
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+
+        /* Liquid Button */
+        .liquid-btn {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .liquid-btn::before {
+            content: '';
+            position: absolute;
+            top: var(--y, 50%);
+            left: var(--x, 50%);
+            width: 0; height: 0;
+            border-radius: 50%;
+            background: rgba(255,87,1,0.4);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+            z-index: -1;
+        }
+        .liquid-btn:hover::before {
+            width: 300px; height: 300px;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body class="antialiased">
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot hidden md:block" id="cursor-dot"></div>
+    <div class="cursor-ring hidden md:block" id="cursor-ring"></div>
+
+    <!-- Noise Overlay -->
+    <div class="noise-overlay"></div>
+
+    <!-- WebGL Background -->
+    <canvas id="webgl-bg"></canvas>
+
+    <!-- Scroll Progress -->
+    <div id="scroll-progress" class="fixed top-0 left-0 h-[3px] bg-primary z-[100] w-0 shadow-[0_0_10px_rgba(255,87,1,0.5)]"></div>
+
+    <!-- Navigation -->
+    <nav id="main-nav" class="fixed w-full z-50 transition-all duration-500">
+        <div class="px-6 md:px-12 py-6 flex justify-between items-center">
+            <div class="logo-container h-8 md:h-10 overflow-hidden">
+                <a href="#" class="text-2xl md:text-3xl font-black tracking-tighter uppercase glitch-text" data-text="MALEK">
+                    <span class="text-white">MAL</span><span class="text-primary">EK</span>
+                </a>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#about" class="nav-link magnetic-btn font-mono text-[11px] tracking-[0.3em] uppercase text-gray-400 hover:text-primary transition-colors">About</a>
+                <a href="#work" class="nav-link magnetic-btn font-mono text-[11px] tracking-[0.3em] uppercase text-gray-400 hover:text-primary transition-colors">Works</a>
+                <a href="#skills" class="nav-link magnetic-btn font-mono text-[11px] tracking-[0.3em] uppercase text-gray-400 hover:text-primary transition-colors">Stack</a>
+                <a href="#contact" class="magnetic-btn liquid-btn px-6 py-3 border border-primary/50 text-primary font-mono text-[11px] tracking-[0.3em] uppercase hover:text-white transition-colors">
+                    Contact
+                </a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-white text-2xl">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 bg-black/95 z-40 flex flex-col items-center justify-center space-y-8 opacity-0 pointer-events-none transition-opacity duration-500">
+        <a href="#about" class="mobile-link text-3xl font-heading text-white">About</a>
+       
+        <a href="#skills" class="mobile-link text-3xl font-heading text-white">Stack</a>
+         <a href="#work" class="mobile-link text-3xl font-heading text-white">Works</a>
+        <a href="#contact" class="mobile-link text-3xl font-heading text-primary">Contact</a>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="hero" class="min-h-screen flex flex-col justify-center relative px-6 md:px-20 overflow-hidden">
+        <!-- Floating Elements -->
+        <div class="absolute top-20 right-20 w-32 h-32 border border-primary/20 rounded-full floating opacity-30 hidden md:block"></div>
+        <div class="absolute bottom-40 left-10 w-20 h-20 border border-white/10 rounded-full floating opacity-20 hidden md:block" style="animation-delay: -2s;"></div>
+        <div class="absolute top-1/3 right-1/4 w-3 h-3 bg-primary rounded-full floating opacity-60 hidden md:block" style="animation-delay: -4s;"></div>
+
+        <div class="relative z-10 max-w-7xl">
+            <div class="mask-text overflow-hidden mb-4">
+                <p class="font-mono text-primary text-sm tracking-[0.5em] uppercase hero-label opacity-0">
+                    Frontend Developer & UI Engineer
+                </p>
+            </div>
+
+            <div class="mask-text overflow-hidden">
+                <h1 class="text-[12vw] md:text-[10vw] font-black leading-[0.85] uppercase split-hero" id="hero-title">
+                    Web<br>
+                    <span class="text-primary glitch-text" data-text="Creator">Developer</span>
+                </h1>
+            </div>
+
+            <div class="mt-12 md:mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
+                <div class="hero-reveal opacity-0">
+                    <p class="text-gray-400 font-mono text-xs uppercase tracking-widest leading-loose max-w-sm">
+                        Building immersive digital experiences with cutting-edge web technologies and motion design.
+                    </p>
+                </div>
+                <div class="hero-reveal opacity-0 md:text-center">
+                    <div class="flex items-center justify-center space-x-4">
+                        <span class="w-2 h-2 bg-primary rounded-full pulse-glow"></span>
+                        <span class="font-mono text-xs text-gray-500 uppercase tracking-widest">Available for Projects</span>
+                    </div>
+                </div>
+                <div class="hero-reveal opacity-0 md:text-right">
+                    <p class="font-mono text-xs text-gray-500 uppercase tracking-widest">
+                        Based in London, UK<br>
+                        <span class="text-primary">Freelance 2026</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-16 flex items-center space-x-6 hero-reveal opacity-0">
+                <a href="#work" class="magnetic-btn liquid-btn group px-8 py-4 bg-primary text-black font-bold text-sm uppercase tracking-wider hover:bg-white transition-colors">
+                    View Works <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+                <a href="#contact" class="magnetic-btn px-8 py-4 border border-white/20 text-white font-bold text-sm uppercase tracking-wider hover:border-primary hover:text-primary transition-colors">
+                    Get in Touch
+                </a>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 scroll-indicator hero-reveal opacity-0">
+            <div class="flex flex-col items-center space-y-2">
+                <span class="font-mono text-[10px] text-gray-500 uppercase tracking-widest">Scroll</span>
+                <div class="w-[1px] h-12 bg-gradient-to-b from-primary to-transparent"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Counter Section -->
+    <section id="stats" class="py-20 border-y border-white/5 bg-darker">
+        <div class="px-6 md:px-20">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-16">
+                <div class="stat-item text-center">
+                    <div class="text-5xl md:text-7xl font-black text-white counter-value" data-target="18">0</div>
+                    <p class="mt-4 font-mono text-xs text-gray-500 uppercase tracking-widest">Projects Completed</p>
+                </div>
+                <div class="stat-item text-center">
+                    <div class="text-5xl md:text-7xl font-black text-white counter-value" data-target="18">0</div>
+                    <p class="mt-4 font-mono text-xs text-gray-500 uppercase tracking-widest">Happy Clients</p>
+                </div>
+                <div class="stat-item text-center">
+                    <div class="text-5xl md:text-7xl font-black text-primary counter-value" data-target="1">0</div>
+                    <p class="mt-4 font-mono text-xs text-gray-500 uppercase tracking-widest">Years Experience</p>
+                </div>
+                <div class="stat-item text-center">
+                    <div class="text-5xl md:text-7xl font-black text-white counter-value" data-target="100">0</div>
+                    <p class="mt-4 font-mono text-xs text-gray-500 uppercase tracking-widest">% Satisfaction</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-32 md:py-48 px-6 md:px-20 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 items-center">
+            <div class="section-reveal">
+                <span class="font-mono text-primary text-xs uppercase tracking-[0.4em]">About Me</span>
+                <h2 class="text-5xl md:text-7xl font-heading mt-6 leading-tight mb-8">
+                    Crafting Digital<br><span class="text-primary">Experiences</span>
+                </h2>
+                <p class="text-gray-400 text-lg leading-relaxed mb-6">
+                    I'm a passionate frontend developer specializing in creating high-performance, visually stunning web applications. With expertise in modern JavaScript, animation libraries, and responsive design, I transform complex ideas into elegant digital solutions.
+                </p>
+                <p class="text-gray-500 leading-relaxed mb-8">
+                    My approach combines technical precision with creative vision, ensuring every project not only functions flawlessly but also delivers an unforgettable user experience.
+                </p>
+
+                <div class="flex flex-wrap gap-4">       <span class="px-4 py-2 bg-surface border border-white/10 rounded-full font-mono text-xs text-gray-400">Html CSS</span>
+                    <span class="px-4 py-2 bg-surface border border-white/10 rounded-full font-mono text-xs text-gray-400">GSAP</span>
+                    <span class="px-4 py-2 bg-surface border border-white/10 rounded-full font-mono text-xs text-gray-400">Tailwind CSS</span>
+             
+                </div>
+            </div>
+
+            <div class="section-reveal relative">
+                <div class="img-reveal rounded-2xl overflow-hidden aspect-[4/5]">
+                    <img src="1777680980855.png" 
+                         alt="Developer Portrait" 
+                         class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700">
+                </div>
+                <!-- Decorative Elements -->
+                <div class="absolute -top-6 -right-6 w-24 h-24 border-2 border-primary/30 rounded-full"></div>
+                <div class="absolute -bottom-6 -left-6 w-16 h-16 bg-primary/10 rounded-lg"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Marquee Section -->
+    <section class="py-16 border-y border-white/5 overflow-hidden bg-darker">
+        <div class="marquee-wrapper">
+            <div class="marquee-track">
+                <div class="flex items-center space-x-16 px-8 whitespace-nowrap">
+            
+ <span class="text-6xl md:text-8xl font-black text-white/10 uppercase">Basics Python</span>
+                    <span class="text-primary text-4xl">✦</span>
+                    <span class="text-6xl md:text-8xl font-black text-white/10 uppercase">GSAP</span>
+                    <span class="text-primary text-4xl">✦</span>
+        
+                    <span class="text-6xl md:text-8xl font-black text-white/10 uppercase">Tailwind</span>
+                    <span class="text-primary text-4xl">✦</span>
+                     <span class="text-6xl md:text-8xl font-black text-white/10 uppercase">Html</span>
+                    <span class="text-primary text-4xl">✦</span>
+                     <span class="text-6xl md:text-8xl font-black text-white/10 uppercase">CSS</span>
+                    <span class="text-primary text-4xl">✦</span>
+      
+                </div>
+                <div class="flex items-center space-x-16 px-8 whitespace-nowrap">
+    <span class="text-6xl md:text-8xl font-black text-white/10 uppercase">Basics Python</span>
+          <span class="text-primary text-4xl">✦</span>
+                    <span class="text-6xl md:text-8xl font-black text-white/10 uppercase">GSAP</span>
+                    <span class="text-primary text-4xl">✦</span>
+          
+                    <span class="text-6xl md:text-8xl font-black text-white/10 uppercase">Tailwind</span>
+                    <span class="text-primary text-4xl">✦</span>
+                 
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-32 md:py-48 px-6 md:px-20 bg-darker">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row gap-20">
+                <div class="md:w-1/3 sticky top-32 h-fit section-reveal">
+                    <span class="font-mono text-primary text-xs uppercase tracking-[0.4em]">The Stack</span>
+                    <h2 class="text-5xl md:text-6xl font-heading mt-6 leading-tight">
+                        Technical<br>Backbone
+                    </h2>
+                    <p class="mt-6 text-gray-500 leading-relaxed">
+                        A curated selection of technologies I use to build modern, performant, and scalable web applications.
+                    </p>
+                </div>
+
+                <div class="md:w-2/3 space-y-16">
+                    <!-- Skill Item 1 -->
+                    <div class="skill-item section-reveal group">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="font-mono text-xs text-gray-500">01 / Core</span>
+                            <span class="font-mono text-xs text-primary">95%</span>
+                        </div>
+                        <h3 class="text-3xl md:text-4xl font-heading mb-4 group-hover:text-primary transition-colors">Frontend Engineering</h3>
+                        <p class="text-gray-400 leading-relaxed mb-6">HTML5, CSS3, JavaScript (ES6+). Building semantic, accessible, and performant interfaces.</p>
+                        <div class="h-1 bg-surface rounded-full overflow-hidden">
+                            <div class="skill-bar h-full bg-primary rounded-full" style="width: 0%" data-width="95%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Skill Item 2 -->
+                    <div class="skill-item section-reveal group">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="font-mono text-xs text-gray-500">02 / Motion</span>
+                            <span class="font-mono text-xs text-primary">90%</span>
+                        </div>
+                        <h3 class="text-3xl md:text-4xl font-heading mb-4 group-hover:text-primary transition-colors">Advanced Animation</h3>
+                        <p class="text-gray-400 leading-relaxed mb-6">GSAP, ScrollTrigger, Flip Plugin, Three.js, WebGL Shaders. Creating immersive motion experiences that guide user attention.</p>
+                        <div class="h-1 bg-surface rounded-full overflow-hidden">
+                            <div class="skill-bar h-full bg-primary rounded-full" style="width: 0%" data-width="90%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Skill Item 3 -->
+                    <div class="skill-item section-reveal group">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="font-mono text-xs text-gray-500">03 / Design</span>
+                            <span class="font-mono text-xs text-primary">85%</span>
+                        </div>
+                        <h3 class="text-3xl md:text-4xl font-heading mb-4 group-hover:text-primary transition-colors">UI/UX Design</h3>
+                        <p class="text-gray-400 leading-relaxed mb-6"> Tailwind CSS, 8pt Grid System. Crafting pixel-perfect interfaces with strong visual hierarchy.</p>
+                        <div class="h-1 bg-surface rounded-full overflow-hidden">
+                            <div class="skill-bar h-full bg-primary rounded-full" style="width: 0%" data-width="85%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Skill Item 4 -->
+                    <div class="skill-item section-reveal group">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="font-mono text-xs text-gray-500">04 / Backend</span>
+                            <span class="font-mono text-xs text-primary">75%</span>
+                        </div>
+                        <h3 class="text-3xl md:text-4xl font-heading mb-4 group-hover:text-primary transition-colors">Fullstack Integration</h3>
+                        <p class="text-gray-400 leading-relaxed mb-6">Supabase, Firebase, REST APIs. Integrating real-time data and authentication for complete solutions.</p>
+                        <div class="h-1 bg-surface rounded-full overflow-hidden">
+                            <div class="skill-bar h-full bg-primary rounded-full" style="width: 0%" data-width="75%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Works Section -->
+    <section id="work" class="py-32 md:py-48 px-6 md:px-20 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-24 md:mb-32 section-reveal">
+                <span class="font-mono text-primary text-xs uppercase tracking-[0.4em]">Selected Works</span>
+                <div class="flex flex-col md:flex-row items-start md:items-end justify-between mt-8 md:mt-12 gap-8">
+                    <h2 class="text-5xl md:text-7xl font-heading leading-tight">
+                        Featured<br>Projects
+                    </h2>
+                    <p class="hidden md:block text-gray-500 font-mono text-xs uppercase tracking-widest max-w-xs text-right">
+                        A curated selection of projects showcasing technical expertise and creative vision.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 md:gap-x-20 gap-y-32 md:gap-y-40">
+                <!-- Project 1 -->
+<div class="project-reveal group project-card tilt-card">
+    <div class="tilt-card-inner">
+        <div class="relative aspect-[16/10] bg-surface overflow-hidden mb-12 rounded-lg">
+            <img src="1778241708614.png" 
+                 alt="sanoya" 
+                 class="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-out group-hover:scale-105">
+            
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            
+            <!-- الزر: ظاهر دايمًا على الموبايل، مخفي على الديسكتوب لحد الـ hover -->
+          <a href="https://sanoya.netlify.app" target="_blank" rel="noopener noreferrer" 
+   class="absolute bottom-6 left-6 right-6 flex items-center justify-between transition-all duration-500 z-20 hover:z-30
+          opacity-100 translate-y-0
+          md:opacity-0 md:translate-y-4 md:group-hover:opacity-100 md:group-hover:translate-y-0">
+    <span class="font-mono text-[10px] tracking-widest text-white border border-white/40 px-4 py-2 bg-black/50 backdrop-blur-sm">VIEW LIVE SITE</span>
+    <i class="fas fa-arrow-up-right text-white text-lg"></i>
+</a>
+            <div class="absolute top-4 left-4">
+                <span class="px-3 py-1 bg-primary text-black text-[10px] font-bold uppercase tracking-wider rounded">New</span>
+            </div>
+        </div>
+        
+        <div class="flex items-baseline justify-between">
+            <h4 class="text-3xl md:text-4xl font-heading group-hover:text-primary transition-colors duration-300">sanoya</h4>
+            <span class="font-mono text-xs text-gray-500">2026</span>
+        </div>
+        <p class="text-gray-500 mt-4 font-mono text-[11px] uppercase tracking-widest">PWA • GSAP • Tailwind</p>
+    </div>
+</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-32 md:py-48 px-6 md:px-20 bg-darker border-y border-white/5">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-20 section-reveal">
+                <span class="font-mono text-primary text-xs uppercase tracking-[0.4em]">Testimonials</span>
+                <h2 class="text-5xl md:text-6xl font-heading mt-6">Client Voices</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="section-reveal p-8 border border-white/10 rounded-lg hover:border-primary/30 transition-colors group">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                            <span class="text-primary font-bold">S</span>
+                        </div>
+                        <div>
+                            <h4 class="font-heading text-lg">Sarah Mitchell</h4>
+                            <p class="font-mono text-xs text-gray-500">CEO, TechStart Inc.</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 leading-relaxed italic">"Malek delivered an exceptional website that exceeded our expectations. His attention to detail and animation expertise transformed our digital presence completely."</p>
+                    <div class="mt-4 flex text-primary text-sm">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                </div>
+
+                <div class="section-reveal p-8 border border-white/10 rounded-lg hover:border-primary/30 transition-colors group">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                            <span class="text-primary font-bold">J</span>
+                        </div>
+                        <div>
+                            <h4 class="font-heading text-lg">James Cooper</h4>
+                            <p class="font-mono text-xs text-gray-500">Founder, DesignHub</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 leading-relaxed italic">"Working with Malek was a game-changer. The GSAP animations and smooth scroll effects he implemented made our portfolio stand out from the competition."</p>
+                    <div class="mt-4 flex text-primary text-sm">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <footer id="contact" class="py-32 md:py-48 px-6 md:px-20 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-primary/10 pointer-events-none"></div>
+
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <div class="section-reveal">
+                <p class="font-mono text-xs uppercase tracking-[0.5em] mb-8 text-gray-500">Ready to Collaborate?</p>
+                <h2 class="text-6xl md:text-9xl font-black uppercase leading-none mb-12">
+                    Let's Create<br><span class="text-primary">Together</span>
+                </h2>
+                <a href="mailto:malekomalek49@gmail.com" class="magnetic-btn liquid-btn inline-block text-3xl md:text-5xl font-black uppercase hover:text-primary transition-all duration-500 border-b-2 border-primary pb-2">
+                    malekomalek49
+                </a>
+            </div>
+
+            <div class="mt-24 flex flex-col md:flex-row items-center justify-between border-t border-white/10 pt-12 section-reveal">
+                <div class="flex items-center space-x-6 mb-8 md:mb-0">
+                    <a href="#" class="magnetic-btn w-12 h-12 border border-white/20 rounded-full flex items-center justify-center hover:border-primary hover:text-primary transition-colors">
+                        <i class="fab fa-github text-lg"></i>
+                    </a>
+                    <a href="#" class="magnetic-btn w-12 h-12 border border-white/20 rounded-full flex items-center justify-center hover:border-primary hover:text-primary transition-colors">
+                        <i class="fab fa-linkedin-in text-lg"></i>
+                    </a>
+                    <a href="#" class="magnetic-btn w-12 h-12 border border-white/20 rounded-full flex items-center justify-center hover:border-primary hover:text-primary transition-colors">
+                        <i class="fab fa-twitter text-lg"></i>
+                    </a>
+                    <a href="#" class="magnetic-btn w-12 h-12 border border-white/20 rounded-full flex items-center justify-center hover:border-primary hover:text-primary transition-colors">
+                        <i class="fab fa-dribbble text-lg"></i>
+                    </a>
+                </div>
+                <p class="font-mono text-[10px] text-gray-600 uppercase tracking-widest">
+                    © 2026 Malek DevStudio. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Register GSAP Plugins
+       // Register GSAP Plugins
+gsap.registerPlugin(ScrollTrigger, Flip, Draggable, ScrollToPlugin);
+
+        // ============================================
+        // CUSTOM CURSOR
+        // ============================================
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorRing = document.getElementById('cursor-ring');
+        let cursorX = 0, cursorY = 0, ringX = 0, ringY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+        });
+
+        function animateCursor() {
+            cursorDot.style.left = cursorX - 4 + 'px';
+            cursorDot.style.top = cursorY - 4 + 'px';
+
+            ringX += (cursorX - ringX) * 0.15;
+            ringY += (cursorY - ringY) * 0.15;
+            cursorRing.style.left = ringX - 20 + 'px';
+            cursorRing.style.top = ringY - 20 + 'px';
+
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Cursor hover effects
+        document.querySelectorAll('a, button, .magnetic-btn').forEach(el => {
+            el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+        });
+
+        // ============================================
+        // WEBGL SHADER BACKGROUND
+        // ============================================
+        const canvas = document.getElementById('webgl-bg');
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+        const vertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = vec4(position, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            precision mediump float;
+            uniform float uTime;
+            uniform vec2 uResolution;
+            uniform vec2 uMouse;
+            varying vec2 vUv;
+
+            float noise(vec2 p) {
+                return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+            }
+
+            float smoothNoise(vec2 p) {
+                vec2 i = floor(p);
+                vec2 f = fract(p);
+                f = f * f * (3.0 - 2.0 * f);
+
+                float a = noise(i);
+                float b = noise(i + vec2(1.0, 0.0));
+                float c = noise(i + vec2(0.0, 1.0));
+                float d = noise(i + vec2(1.0, 1.0));
+
+                return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+            }
+
+            float fbm(vec2 p) {
+                float value = 0.0;
+                float amplitude = 0.5;
+                for(int i = 0; i < 5; i++) {
+                    value += amplitude * smoothNoise(p);
+                    p *= 2.0;
+                    amplitude *= 0.5;
+                }
+                return value;
+            }
+
+            void main() {
+                vec2 uv = vUv;
+                vec2 mouse = uMouse * 0.5 + 0.5;
+
+                float dist = distance(uv, mouse);
+                float influence = smoothstep(0.5, 0.0, dist) * 0.3;
+
+                vec2 q = vec2(0.0);
+                q.x = fbm(uv + uTime * 0.1);
+                q.y = fbm(uv + vec2(1.0));
+
+                vec2 r = vec2(0.0);
+                r.x = fbm(uv + q + vec2(1.7, 9.2) + uTime * 0.15 + influence);
+                r.y = fbm(uv + q + vec2(8.3, 2.8) + uTime * 0.126);
+
+                float f = fbm(uv + r);
+
+                vec3 color1 = vec3(0.02, 0.02, 0.02);
+                vec3 color2 = vec3(1.0, 0.34, 0.004);
+                vec3 color3 = vec3(0.1, 0.05, 0.02);
+
+                vec3 color = mix(color1, color2, clamp(f * f * 2.0, 0.0, 1.0));
+                color = mix(color, color3, clamp(length(q) * 0.5, 0.0, 1.0));
+                color = mix(color, vec3(0.0), clamp(length(r.x) * 0.3, 0.0, 1.0));
+
+                float alpha = f * 0.6 + influence * 0.4;
+                gl_FragColor = vec4(color, alpha * 0.4);
+            }
+        `;
+
+        const uniforms = {
+            uTime: { value: 0 },
+            uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+            uMouse: { value: new THREE.Vector2(0, 0) }
+        };
+
+        const material = new THREE.ShaderMaterial({
+            vertexShader,
+            fragmentShader,
+            uniforms,
+            transparent: true
+        });
+
+        const geometry = new THREE.PlaneGeometry(2, 2);
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        function animateWebGL() {
+            uniforms.uTime.value += 0.01;
+            uniforms.uMouse.value.x += (mouseX - uniforms.uMouse.value.x) * 0.05;
+            uniforms.uMouse.value.y += (mouseY - uniforms.uMouse.value.y) * 0.05;
+            renderer.render(scene, camera);
+            requestAnimationFrame(animateWebGL);
+        }
+        animateWebGL();
+
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+        });
+
+        // ============================================
+        // HERO ANIMATIONS
+        // ============================================
+        const heroSplit = new SplitType('.split-hero', { types: 'chars' });
+
+        gsap.from(heroSplit.chars, {
+            y: "120%",
+            opacity: 0,
+            duration: 1.8,
+            stagger: 0.04,
+            ease: "expo.out",
+            delay: 0.3
+        });
+
+        gsap.from('.hero-label', {
+            opacity: 0,
+            y: 30,
+            duration: 1.2,
+            delay: 0.1,
+            ease: "power4.out"
+        });
+
+        gsap.to('.hero-reveal', {
+            opacity: 1,
+            y: 0,
+            duration: 1.4,
+            delay: 1.0,
+            stagger: 0.15,
+            ease: "power4.out"
+        });
+
+        // Glitch effect on title hover
+        const glitchTitle = document.querySelector('.glitch-text');
+        if(glitchTitle) {
+            glitchTitle.addEventListener('mouseenter', () => {
+                glitchTitle.classList.add('active');
+                setTimeout(() => glitchTitle.classList.remove('active'), 400);
+            });
+        }
+
+        // ============================================
+        // SCROLL PROGRESS
+        // ============================================
+        gsap.to('#scroll-progress', {
+            width: '100%',
+            ease: 'none',
+            scrollTrigger: {
+                trigger: 'body',
+                start: 'top top',
+                end: 'bottom bottom',
+                scrub: 0.3
+            }
+        });
+
+        // ============================================
+        // NAVIGATION EFFECTS
+        // ============================================
+        const nav = document.getElementById('main-nav');
+        let lastScroll = 0;
+
+        ScrollTrigger.create({
+            start: 'top -100',
+            end: 99999,
+            toggleClass: { className: 'nav-glass', targets: nav }
+        });
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                gsap.to(nav, { y: -100, duration: 0.3 });
+            } else {
+                gsap.to(nav, { y: 0, duration: 0.3 });
+            }
+            lastScroll = currentScroll;
+        });
+
+        // ============================================
+        // MAGNETIC BUTTONS
+        // ============================================
+        document.querySelectorAll('.magnetic-btn').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(btn, {
+                    x: x * 0.3,
+                    y: y * 0.3,
+                    duration: 0.3,
+                    ease: 'power2.out'
+                });
+            });
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.5)' });
+            });
+        });
+
+        // ============================================
+        // LIQUID BUTTON EFFECT
+        // ============================================
+        document.querySelectorAll('.liquid-btn').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                btn.style.setProperty('--x', (e.clientX - rect.left) + 'px');
+                btn.style.setProperty('--y', (e.clientY - rect.top) + 'px');
+            });
+        });
+
+        // ============================================
+        // SECTION REVEALS
+        // ============================================
+        gsap.utils.toArray('.section-reveal').forEach(el => {
+            gsap.to(el, {
+                scrollTrigger: {
+                    trigger: el,
+                    start: 'top 85%',
+                    toggleActions: 'play none none reverse'
+                },
+                opacity: 1,
+                y: 0,
+                duration: 1.2,
+                ease: 'power4.out'
+            });
+        });
+
+        // ============================================
+        // IMAGE REVEAL
+        // ============================================
+        gsap.utils.toArray('.img-reveal').forEach(el => {
+            ScrollTrigger.create({
+                trigger: el,
+                start: 'top 80%',
+                onEnter: () => el.classList.add('revealed')
+            });
+        });
+
+        // ============================================
+        // COUNTER ANIMATION
+        // ============================================
+        gsap.utils.toArray('.counter-value').forEach(counter => {
+            const target = parseInt(counter.dataset.target);
+            ScrollTrigger.create({
+                trigger: counter,
+                start: 'top 85%',
+                onEnter: () => {
+                    gsap.to(counter, {
+                        innerHTML: target,
+                        duration: 2,
+                        snap: { innerHTML: 1 },
+                        ease: 'power2.out'
+                    });
+                }
+            });
+        });
+
+        // ============================================
+        // SKILL BARS
+        // ============================================
+        gsap.utils.toArray('.skill-bar').forEach(bar => {
+            const width = bar.dataset.width;
+            ScrollTrigger.create({
+                trigger: bar,
+                start: 'top 85%',
+                onEnter: () => {
+                    gsap.to(bar, {
+                        width: width,
+                        duration: 1.5,
+                        ease: 'power4.out'
+                    });
+                }
+            });
+        });
+
+        // ============================================
+        // PROJECT REVEALS
+        // ============================================
+        gsap.utils.toArray('.project-reveal').forEach((el, i) => {
+            gsap.from(el, {
+                scrollTrigger: {
+                    trigger: el,
+                    start: 'top 85%'
+                },
+                opacity: 0,
+                y: 80,
+                duration: 1.2,
+                delay: i * 0.1,
+                ease: 'power4.out'
+            });
+        });
+
+        // ============================================
+        // 3D TILT CARDS
+        // ============================================
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            const inner = card.querySelector('.tilt-card-inner');
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                gsap.to(inner, {
+                    rotationY: x * 15,
+                    rotationX: -y * 15,
+                    duration: 0.5,
+                    ease: 'power2.out'
+                });
+            });
+            card.addEventListener('mouseleave', () => {
+                gsap.to(inner, {
+                    rotationY: 0,
+                    rotationX: 0,
+                    duration: 0.8,
+                    ease: 'elastic.out(1, 0.5)'
+                });
+            });
+        });
+
+        // ============================================
+        // PARALLAX EFFECTS
+        // ============================================
+        gsap.utils.toArray('.parallax-slow').forEach(el => {
+            gsap.to(el, {
+                yPercent: -20,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: el,
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: true
+                }
+            });
+        });
+
+        // ============================================
+        // HERO MOUSE TILT
+        // ============================================
+        const heroTitle = document.getElementById('hero-title');
+        let heroLerpX = 0, heroLerpY = 0;
+
+        function heroTilt() {
+            heroLerpX += (mouseX * 0.5 - heroLerpX) * 0.08;
+            heroLerpY += (mouseY * 0.5 - heroLerpY) * 0.08;
+
+            if(heroTitle) {
+                gsap.set(heroTitle, {
+                    rotationX: -heroLerpY * 8,
+                    rotationY: heroLerpX * 8,
+                    transformPerspective: 1000
+                });
+            }
+            requestAnimationFrame(heroTilt);
+        }
+        heroTilt();
+
+        // ============================================
+        // MOBILE MENU
+        // ============================================
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        let menuOpen = false;
+
+        menuToggle.addEventListener('click', () => {
+            menuOpen = !menuOpen;
+            if(menuOpen) {
+                mobileMenu.style.opacity = '1';
+                mobileMenu.style.pointerEvents = 'auto';
+                gsap.from('.mobile-link', {
+                    y: 50,
+                    opacity: 0,
+                    stagger: 0.1,
+                    duration: 0.6,
+                    ease: 'power4.out'
+                });
+            } else {
+                mobileMenu.style.opacity = '0';
+                mobileMenu.style.pointerEvents = 'none';
+            }
+        });
+
+        document.querySelectorAll('.mobile-link').forEach(link => {
+            link.addEventListener('click', () => {
+                menuOpen = false;
+                mobileMenu.style.opacity = '0';
+                mobileMenu.style.pointerEvents = 'none';
+            });
+        });
+
+        // ============================================
+        // SMOOTH SCROLL
+        // ============================================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if(target) {
+                    gsap.to(window, {
+                        duration: 1.5,
+                        scrollTo: { y: target, offsetY: 80 },
+                        ease: 'power4.inOut'
+                    });
+                }
+            });
+        });
+
+        // ============================================
+        // TEXT SCRAMBLE EFFECT (Optional enhancement)
+        // ============================================
+        class TextScramble {
+            constructor(el) {
+                this.el = el;
+                this.chars = '!<>-_\/[]{}—=+*^?#________';
+                this.update = this.update.bind(this);
+            }
+            setText(newText) {
+                const oldText = this.el.innerText;
+                const length = Math.max(oldText.length, newText.length);
+                const promise = new Promise((resolve) => this.resolve = resolve);
+                this.queue = [];
+                for (let i = 0; i < length; i++) {
+                    const from = oldText[i] || '';
+                    const to = newText[i] || '';
+                    const start = Math.floor(Math.random() * 40);
+                    const end = start + Math.floor(Math.random() * 40);
+                    this.queue.push({ from, to, start, end });
+                }
+                cancelAnimationFrame(this.frameRequest);
+                this.frame = 0;
+                this.update();
+                return promise;
+            }
+            update() {
+                let output = '';
+                let complete = 0;
+                for (let i = 0, n = this.queue.length; i < n; i++) {
+                    let { from, to, start, end, char } = this.queue[i];
+                    if (this.frame >= end) {
+                        complete++;
+                        output += to;
+                    } else if (this.frame >= start) {
+                        if (!char || Math.random() < 0.28) {
+                            char = this.randomChar();
+                            this.queue[i].char = char;
+                        }
+                        output += `<span class="text-primary">${char}</span>`;
+                    } else {
+                        output += from;
+                    }
+                }
+                this.el.innerHTML = output;
+                if (complete === this.queue.length) {
+                    this.resolve();
+                } else {
+                    this.frameRequest = requestAnimationFrame(this.update);
+                    this.frame++;
+                }
+            }
+            randomChar() {
+                return this.chars[Math.floor(Math.random() * this.chars.length)];
+            }
+        }
+
+        // Initialize scramble on hero label hover
+        const heroLabel = document.querySelector('.hero-label');
+        if(heroLabel) {
+            const fx = new TextScramble(heroLabel);
+            const originalText = heroLabel.innerText;
+            heroLabel.addEventListener('mouseenter', () => {
+                fx.setText('Creative Developer & Motion Designer');
+            });
+            heroLabel.addEventListener('mouseleave', () => {
+                fx.setText(originalText);
+            });
+        }
+
+        // ============================================
+        // VELOCITY-BASED SKEW ON SCROLL
+        // ============================================
+        let currentSkew = 0;
+        let targetSkew = 0;
+        let lastScrollY = window.scrollY;
+
+        function updateSkew() {
+            const velocity = window.scrollY - lastScrollY;
+            targetSkew = Math.max(-5, Math.min(5, velocity * 0.1));
+            currentSkew += (targetSkew - currentSkew) * 0.1;
+
+            document.querySelectorAll('.project-card, .skill-item').forEach(el => {
+                el.style.transform = `skewY(${currentSkew * 0.3}deg)`;
+            });
+
+            lastScrollY = window.scrollY;
+            requestAnimationFrame(updateSkew);
+        }
+        updateSkew();
+
+    </script>
+</body>
+</html>
